@@ -12,9 +12,24 @@ var cache = require('gulp-cache');
 var del = require('del');
 var pug = require('gulp-pug');
 var runSequence = require('run-sequence');
+var plumber = require('gulp-plumber');
+var gutil = require('gulp-util');
 
 // Development Tasks
 // -----------------
+
+// Error Handeling
+var gulp_src = gulp.src;
+gulp.src = function() {
+  return gulp_src.apply(gulp, arguments)
+    .pipe(plumber(function(error) {
+      // Output an error message
+      gutil.log(gutil.colors.red('Error (' + error.plugin + '): ' + error.message));
+      // emit the end event, to properly end the task
+      this.emit('end');
+    })
+  );
+};
 
 // Start browserSync server
 gulp.task('browserSync', function() {
